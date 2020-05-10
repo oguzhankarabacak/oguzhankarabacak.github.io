@@ -1,70 +1,31 @@
-//Elementleri Seçme
-
-const githubForm=document.getElementById("github-form");
-const name_input=document.getElementById("githubname");
-const clearLastUsers=document.getElementById("clear-last-users");
-const lastUsers=document.getElementById("last-users");
-
-const github=new Github();
-const ui=new UI();
+//Genel İşlemler
+//Prototype,Ajax,Callback
 
 eventListeners();
 
 function eventListeners(){
-    githubForm.addEventListener("submit",getData);
-    clearLastUsers.addEventListener("click",clearAllSearched);
-    window.addEventListener("DOMContentLoaded",getAllSearched);
-    
-}
-
-function getData(e){
-    let username=name_input.value.trim();  //sağ ve soldaki boşlukları siliyoruz
-    if (username === ""){
-        alert("lütfen geçerli bir kullanıcı adı girin");
-    }
-    else {
-        github.getGithubData(username)
-        .then(response => {
-            // console.log(response.user);
-            // console.log(response.repo);
-            if(response.user.message==="Not Found"){
-                ui.showError("kullanıcı bulunamadı");
-                // console.log("hata");
-            }
-            else {
-                //  console.log(response.repo);
-                ui.addSearchedUserToUI(username);
-                Storage.addSearchedUserToStorage(username);
-                ui.showUserInfo(response.user);
-                ui.showRepoInfo(response.repo);
-            }
-
-        })
-        .catch(err => {
-            ui.showError(err);
-        });
-
-    }
-    
-
-    ui.clearInput();
-    e.preventDefault();
-}
-function clearAllSearched(){
-    if(confirm("Emin misiniz?")){
-        ui.clearAllSearchedFromUI();
-        Storage.clearAllSearchedUsersFromStorage();
-
-    }
-    
-
-}
-function getAllSearched(){
-    let users=Storage.getSearchedUserFromStorage();
-    let result = "";
-    users.forEach(user => {
+    document.getElementById("translate-form").addEventListener("submit",translateWord);  //buton elementi
+    document.getElementById("language").onchange=function(){   //dil değiştikçe
+        //Arayüz işlemleri
         
-        result += `<li class="list-group-item">${user}</li>`;
-    });
-    lastUsers.innerHTML=result;
+        ui.changeUI();
+    }
+}
+const translate=new Translate(document.getElementById("word").value,document.getElementById("language").value);
+const ui=new UI();
+
+
+function translateWord(e){
+
+    translate.changeParameters(document.getElementById("word").value,document.getElementById("language").value);
+    translate.translateWord(function(err,response){
+        if (err===null){
+            ui.displayTranslate(response);
+        }
+        else {
+            console.log("error");
+
+        }
+    });   //translate.js'ye ait olan fonksiyon üsttekiyle alakası yok
+    e.preventDefault();
 }
